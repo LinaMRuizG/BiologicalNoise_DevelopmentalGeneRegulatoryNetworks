@@ -1,0 +1,1773 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='WolframDesktop 12.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       161,          7]
+NotebookDataLength[     76297,       1765]
+NotebookOptionsPosition[     73462,       1709]
+NotebookOutlinePosition[     73974,       1728]
+CellTagsIndexPosition[     73931,       1725]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["\<\
+This notebook is to understand how the noise is propagated from one gene A to \
+ gene B in a direct link of activation. Using Gillespie\[CloseCurlyQuote]s \
+Algorithm. Both genes have CONSTITUTIVE expression.\
+\>", "Text",
+ CellChangeTimes->{{3.8358587223643084`*^9, 3.835858803044805*^9}, {
+  3.8359594117112103`*^9, 3.835959422450595*^9}, {3.8488537905395737`*^9, 
+  3.848853858193389*^9}},
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"6b40758c-0b98-4460-a858-33b90e903e9d"],
+
+Cell[CellGroupData[{
+
+Cell["Parameters", "Section",
+ CellChangeTimes->{{3.793276499013104*^9, 3.793276520028842*^9}, {
+  3.84885386404823*^9, 
+  3.848853865056244*^9}},ExpressionUUID->"d439c723-c551-4bcf-9854-\
+dda4fda5c45b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"kmA", ",", "kmB"}], "}"}], "=", 
+    RowBox[{"{", 
+     RowBox[{"0.696", ",", "0.696"}], "}"}]}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{"mRNA", " ", "production", " ", "rate", "  ", 
+    RowBox[{"(", 
+     RowBox[{"molecules", "*", 
+      RowBox[{"t", "^", 
+       RowBox[{"-", "1"}]}]}], ")"}]}], " ", "*)"}]}], "\[IndentingNewLine]", 
+
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"\[Gamma]mA", ",", "\[Gamma]mB"}], "}"}], "=", 
+    RowBox[{"{", 
+     RowBox[{"0.02082", ",", "0.02082"}], "}"}]}], " ", ";", 
+   RowBox[{"(*", " ", 
+    RowBox[{"mRNA", " ", "Degradation", " ", "rate", " ", 
+     RowBox[{"(", 
+      RowBox[{"molecules", "*", 
+       RowBox[{"t", "^", 
+        RowBox[{"-", "1"}]}]}], ")"}]}], " ", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"kpA", ",", "kpB"}], "}"}], "=", 
+    RowBox[{"{", 
+     RowBox[{"1.386", ",", "1.386"}], "}"}]}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{"Proteins", " ", "production", " ", "rate", " ", 
+    RowBox[{"(", 
+     RowBox[{"molecules", "*", 
+      RowBox[{"t", "^", 
+       RowBox[{"-", "1"}]}]}], ")"}]}], " ", "*)"}], 
+  " "}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"{", 
+   RowBox[{"\[Gamma]pA", ",", "\[Gamma]pB"}], "}"}], "=", 
+  RowBox[{"{", 
+   RowBox[{"0.02082", " ", ",", 
+    RowBox[{"0.02082", ";", " ", 
+     RowBox[{"(*", " ", 
+      RowBox[{"Proteins", " ", "degradation", " ", "rate", " ", 
+       RowBox[{"(", 
+        RowBox[{"molecules", "*", 
+         RowBox[{"t", "^", 
+          RowBox[{"-", "1"}]}]}], ")"}]}], " ", "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"kAB", "=", "100"}], ";", 
+     RowBox[{"(*", " ", 
+      RowBox[{"Michaelis", "-", 
+       RowBox[{"Menten", " ", "constant"}]}], " ", "*)"}], 
+     "\[IndentingNewLine]", 
+     RowBox[{"h", "=", "3"}], " ", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{"Hill", "'"}], "s", " ", "constant"}], " ", "*)"}], 
+     ";"}]}]}]}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.806749397270711*^9, 3.80674943564723*^9}, {
+   3.806749469429389*^9, 3.8067495684773207`*^9}, {3.806749633035692*^9, 
+   3.806749810351491*^9}, {3.806749881040907*^9, 3.806749913489949*^9}, {
+   3.8067499750253763`*^9, 3.806750014455998*^9}, {3.806752014017599*^9, 
+   3.806752039686677*^9}, {3.8067523399839087`*^9, 3.806752350340755*^9}, {
+   3.8067551186191683`*^9, 3.806755126192609*^9}, 3.806759000007998*^9, {
+   3.806760269428028*^9, 3.806760299338224*^9}, 3.8067649587581*^9, {
+   3.8067651111062*^9, 3.806765119909974*^9}, {3.806765182972081*^9, 
+   3.8067651861372633`*^9}, {3.8068287241723747`*^9, 
+   3.8068287267049503`*^9}, {3.806828763890729*^9, 3.806828773984037*^9}, {
+   3.806828839487755*^9, 3.806828843046193*^9}, {3.806836544526873*^9, 
+   3.80683658050546*^9}, {3.806851790989798*^9, 3.806851827135364*^9}, {
+   3.8069365551921*^9, 3.8069365915884447`*^9}, {3.808058214177973*^9, 
+   3.808058289989943*^9}, {3.8080584165627193`*^9, 3.808058424863387*^9}, 
+   3.8080604784296637`*^9, {3.8082275857139482`*^9, 3.808227601695382*^9}, {
+   3.808231421242428*^9, 3.808231477142461*^9}, {3.8082319623840218`*^9, 
+   3.808231968800147*^9}, {3.808232108139662*^9, 3.808232115124977*^9}, {
+   3.808736386484747*^9, 3.808736408277247*^9}, 3.808742693859041*^9, {
+   3.808746541623275*^9, 3.8087465956998587`*^9}, {3.808836849905119*^9, 
+   3.8088369096646633`*^9}, {3.8088370825790443`*^9, 3.808837092712309*^9}, 
+   3.808842950734932*^9, {3.8096979198725243`*^9, 3.809697932696237*^9}, {
+   3.809701459617055*^9, 3.809701460367392*^9}, {3.8097021513196697`*^9, 
+   3.809702165633265*^9}, {3.809702199603298*^9, 3.809702352465624*^9}, {
+   3.810908225386231*^9, 3.810908291998473*^9}, {3.811687373611352*^9, 
+   3.811687388365386*^9}, {3.814050778803554*^9, 3.814050779746543*^9}, {
+   3.8231101742663794`*^9, 3.8231101987127647`*^9}, {3.823110272133564*^9, 
+   3.823110428605196*^9}, {3.823110686298633*^9, 3.823110695497046*^9}, {
+   3.823113786343779*^9, 3.82311382702985*^9}, {3.823173957095389*^9, 
+   3.823173958084626*^9}, {3.823174515201721*^9, 3.823174548197083*^9}, {
+   3.823174603361381*^9, 3.823174678828505*^9}, {3.823174713569483*^9, 
+   3.823174737541235*^9}, {3.82317518981588*^9, 3.823175197589346*^9}, {
+   3.835858902388269*^9, 3.835858938851915*^9}, 3.835859013799408*^9, {
+   3.835860125967848*^9, 3.8358601626767483`*^9}, {3.835860361235227*^9, 
+   3.835860420368719*^9}, {3.8366924074145823`*^9, 3.836692449141192*^9}, 
+   3.836692488755424*^9, {3.836692521384953*^9, 3.8366925220146837`*^9}, {
+   3.8375077328900337`*^9, 3.837507750401154*^9}, {3.8488574394674997`*^9, 
+   3.848857513085536*^9}},ExpressionUUID->"82110e4b-af8e-4791-b6f7-\
+468c1bd84339"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"iteraciones2", "=", "400000"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{"Number", " ", "of", " ", "algorithm", " ", "iterations"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"replicas2", "=", "4"}], ";"}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Number", " ", "of", " ", "times", " ", "the", " ", "algorithm", " ", "is",
+     " ", "run"}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rep", "=", "1"}], ";"}], "  ", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Some", " ", "plots", " ", "are", " ", "made", " ", "with", " ", "the", 
+    " ", "output", " ", "of", " ", "this", " ", "replicate"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"lagStep", "=", "10"}], ";", "  ", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Lag", " ", "time", " ", "for", " ", "the", " ", "Autocorrelation", " ", 
+     "plot"}], " ", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"species", "=", "4"}], ";"}], 
+  RowBox[{"(*", 
+   RowBox[{"mRNAA", ",", " ", "proteinA"}], "*)"}], 
+  "  "}], "\[IndentingNewLine]"}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.837252515537324*^9, 3.83725260581386*^9}, {
+  3.83732607991787*^9, 3.837326108893713*^9}, {3.8373538989653053`*^9, 
+  3.837353899630939*^9}, {3.837502633431548*^9, 3.837502645032185*^9}, {
+  3.8375059534462137`*^9, 3.837505954160316*^9}, {3.848857532399663*^9, 
+  3.848857563667478*^9}},ExpressionUUID->"1591f7b9-db4c-4803-ba87-\
+303e5299f7f5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Functions", "Section",
+ CellChangeTimes->{{3.848857417873213*^9, 
+  3.848857418412757*^9}},ExpressionUUID->"3c881c07-84df-44cc-86f2-\
+607b374d6dcb"],
+
+Cell["\<\
+These are the reactions (changesByRXN) and propensity functions (pF) of the \
+GA for the specific regulation system: A: Activator -> B : Activated gene\
+\>", "Text",
+ CellChangeTimes->{{3.836307336495537*^9, 3.836307362673696*^9}, {
+   3.8363074617595367`*^9, 3.836307467009487*^9}, {3.836307550993677*^9, 
+   3.83630762077383*^9}, 3.8488572108414*^9},
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"7950fe7c-de80-49a3-915f-7e8fd39ea956"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"changesByRXN", "=", 
+    RowBox[{"Function", "/@", 
+     RowBox[{"<|", 
+      RowBox[{
+       RowBox[{"1", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"#1", "+", "1"}], ",", "#2", ",", "#3", ",", "#4"}], 
+         "}"}]}], ",", 
+       RowBox[{"2", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", 
+          RowBox[{"#2", "+", "1"}], ",", "#3", ",", "#4"}], "}"}]}], ",", 
+       RowBox[{"3", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"#1", "-", "1"}], ",", "#2", ",", "#3", ",", "#4"}], 
+         "}"}]}], ",", 
+       RowBox[{"4", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", 
+          RowBox[{"#2", "-", "1"}], ",", "#3", ",", "#4"}], "}"}]}], ",", 
+       RowBox[{"5", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", "#2", ",", 
+          RowBox[{"#3", "+", "1"}], ",", "#4"}], "}"}]}], ",", 
+       RowBox[{"6", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", "#2", ",", "#3", ",", 
+          RowBox[{"#4", "+", "1"}]}], "}"}]}], ",", 
+       RowBox[{"7", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", "#2", ",", 
+          RowBox[{"#3", "-", "1"}], ",", "#4"}], "}"}]}], ",", 
+       RowBox[{"8", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"#1", ",", "#2", ",", "#3", ",", 
+          RowBox[{"#4", "-", "1"}]}], "}"}]}]}], "\[IndentingNewLine]", 
+      "|>"}]}]}], ";", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Each", " ", "hash", " ", "represents", " ", "a", " ", 
+       RowBox[{"specie", ":", " ", 
+        RowBox[{
+        "mRNAA", "-", "proteinA", "-", "mRNAB", "-", "proteinB", "-", 
+         "da0A"}], ":", 
+        RowBox[{"promoterActivatedA", "-", 
+         RowBox[{"da1A", ":", 
+          RowBox[{"promoterInactivatedA", "-", "db0B", "-", 
+           RowBox[{
+           "db1B", "\n", "   ", "The", " ", "numbers", " ", "are", " ", "the",
+             " ", "next", " ", "reactions"}]}], ":", " ", 
+          "\[IndentingNewLine]", 
+          RowBox[{"1", "-", "2", "-", "5", "-", "6"}]}]}]}]}], "\[Rule]", " ",
+       "Synthesis"}], ",", "  ", 
+     RowBox[{
+      RowBox[{"3", "-", "4", "-", "7", "-", "8"}], "\[Rule]", " ", 
+      "Degradation"}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"pF", "=", 
+    RowBox[{"Compile", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"h", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"kAB", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"kmA", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Gamma]mA", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"kpA", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Gamma]pA", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"kmB", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Gamma]mB", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"kpB", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Gamma]pB", ",", "_Real"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"mRNAA", ",", "_Integer"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"proteinA", ",", "_Integer"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"mRNAB", ",", "_Integer"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"proteinB", ",", "_Integer"}], "}"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"kmA", "+", "0.01"}], ",", 
+        RowBox[{"kpA", "*", "mRNAA"}], ",", 
+        RowBox[{"mRNAA", "*", "\[Gamma]mA"}], ",", 
+        RowBox[{"\[Gamma]pA", "*", "proteinA"}], ",", 
+        RowBox[{
+         RowBox[{"kmB", "*", 
+          RowBox[{"(", 
+           FractionBox[
+            SuperscriptBox["proteinA", "h"], 
+            RowBox[{"kAB", "+", 
+             SuperscriptBox[
+              RowBox[{"proteinA", " "}], "h"]}]], ")"}]}], "+", "0.01"}], ",", 
+        RowBox[{"kpB", "*", "mRNAB"}], ",", 
+        RowBox[{"mRNAB", "*", "\[Gamma]mB"}], ",", 
+        RowBox[{"\[Gamma]pB", "*", "proteinB"}]}], "}"}], ",", 
+      RowBox[{"RuntimeAttributes", "->", 
+       RowBox[{"{", "Listable", "}"}]}], ",", 
+      RowBox[{"Parallelization", "->", "True"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.7965819497658043`*^9, 3.796582104209844*^9}, 
+   3.796583818029256*^9, {3.796584132161336*^9, 3.796584165917902*^9}, 
+   3.796584218210849*^9, {3.796584284249525*^9, 3.796584289999152*^9}, {
+   3.796584485286755*^9, 3.796584487982438*^9}, {3.797598802883318*^9, 
+   3.7975988162138443`*^9}, {3.797598856462776*^9, 3.79759909697371*^9}, {
+   3.7975991506490717`*^9, 3.7975994595766773`*^9}, {3.797599491828985*^9, 
+   3.797599510357952*^9}, {3.797599556663909*^9, 3.797599853237013*^9}, {
+   3.797599901027042*^9, 3.797599903928946*^9}, 3.797600709051414*^9, {
+   3.797601133342708*^9, 3.7976011341060333`*^9}, {3.8026160366092367`*^9, 
+   3.8026160679746513`*^9}, {3.8026161437233973`*^9, 3.802616145896943*^9}, {
+   3.80320683205058*^9, 3.803206867843445*^9}, {3.803206948560508*^9, 
+   3.803207012209773*^9}, {3.803211051272049*^9, 3.803211057088873*^9}, {
+   3.82318120727459*^9, 3.8231812271150103`*^9}, {3.823181322303927*^9, 
+   3.8231813257641487`*^9}, {3.823181512236752*^9, 3.823181512561861*^9}, {
+   3.823181545859017*^9, 3.823181546390585*^9}, {3.823181732394767*^9, 
+   3.823181772396634*^9}, {3.82318247259748*^9, 3.823182506339344*^9}, {
+   3.8231825745590763`*^9, 3.823182710360938*^9}, {3.823182755368326*^9, 
+   3.823182767672144*^9}, {3.823183490367334*^9, 3.823183505193918*^9}, {
+   3.823183574362352*^9, 3.823183634099145*^9}, {3.823183824899387*^9, 
+   3.82318384837665*^9}, {3.823183889451623*^9, 3.823184040325225*^9}, {
+   3.8231841100907373`*^9, 3.823184159247134*^9}, {3.82318421701527*^9, 
+   3.82318423996179*^9}, {3.823184307223846*^9, 3.823184343958516*^9}, {
+   3.823184386146283*^9, 3.823184462823897*^9}, 3.823184501460417*^9, 
+   3.8231845384831553`*^9, {3.8231848753511257`*^9, 3.823184886689189*^9}, {
+   3.823184950644746*^9, 3.8231849995865717`*^9}, {3.82318560113968*^9, 
+   3.823185905681629*^9}, 3.823185955847295*^9, {3.823185986807741*^9, 
+   3.8231860442423153`*^9}, 3.823187133399702*^9, {3.8243836973212843`*^9, 
+   3.82438369809437*^9}, {3.8358590334290037`*^9, 3.835859048338431*^9}, {
+   3.835859087803378*^9, 3.8358591090888643`*^9}, {3.8358592230226088`*^9, 
+   3.8358592889736423`*^9}, {3.83585941734692*^9, 3.835859493642851*^9}, {
+   3.8358596301575413`*^9, 3.835859658517314*^9}, {3.83585982421303*^9, 
+   3.83585984851259*^9}, 3.835860097357708*^9, {3.835871663187751*^9, 
+   3.835871678402622*^9}, {3.8358717183543673`*^9, 3.835871719564002*^9}, {
+   3.83587485770238*^9, 3.835874923339568*^9}, {3.835954964515902*^9, 
+   3.835954997199086*^9}, {3.835955028374805*^9, 3.835955039030603*^9}, {
+   3.835959528682362*^9, 3.835959773550441*^9}, {3.835960029734763*^9, 
+   3.835960039024455*^9}, {3.835960073620623*^9, 3.835960131155757*^9}, {
+   3.835960424265069*^9, 3.835960427200618*^9}, 3.835960728546946*^9, {
+   3.836692650488182*^9, 3.8366927116889877`*^9}, {3.8366927481330967`*^9, 
+   3.8366927530236673`*^9}, {3.836692842169759*^9, 3.836692844720042*^9}, {
+   3.8366929577081127`*^9, 3.8366929641181993`*^9}, 3.836693002760016*^9, {
+   3.836693561587434*^9, 3.836693562124137*^9}, 3.836743860146078*^9, {
+   3.848857230269861*^9, 
+   3.8488572336721077`*^9}},ExpressionUUID->"a5927c5f-8c5e-4fb5-a176-\
+4196f022abf8"],
+
+Cell["\<\
+These functions are equal for all regulation systems and they are used to \
+estimate the FF and CV2 in the steady state\
+\>", "Text",
+ CellChangeTimes->{{3.836307336495537*^9, 3.8363073888182163`*^9}, 
+   3.848857246224139*^9},
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"2d55d588-e79c-46c6-b974-aa979e745b74"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"ff", "[", "dato_", "]"}], ":=", 
+   RowBox[{"N", "[", 
+    RowBox[{
+     RowBox[{"Variance", "[", "dato", "]"}], "/", 
+     RowBox[{"Mean", "[", "dato", "]"}]}], "]"}]}], ";", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Fano", " ", "Factor", " ", "for", " ", "noise", " ", "measure"}], 
+   " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"expressionNoise", "[", "data_", "]"}], ":=", 
+   RowBox[{"N", "[", 
+    RowBox[{
+     RowBox[{"Variance", "[", "data", "]"}], "/", 
+     RowBox[{
+      RowBox[{"Mean", "[", "data", "]"}], "^", "2"}]}], "]"}], 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "Squared", " ", "Coefficient", " ", "of", " ", "Variation", " ", "for", 
+     " ", "noise", " ", "measure"}], " ", "*)"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{
+  3.836307778633675*^9, {3.848857281538666*^9, 
+   3.8488572997121487`*^9}},ExpressionUUID->"ebdb7fd8-c1df-4604-b185-\
+70dc0bb7202c"],
+
+Cell["\<\
+These functions make different plots of the temporal genes expression \
+\>", "Text",
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"e8c6e1eb-9bfa-4792-90cf-af42bb2db88f"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "plots", " ", "the", " ", "temporal", " ", "dynamic", " ", 
+    "of", " ", "genes", " ", "mRNA", " ", "and", " ", "proteins"}], " ", 
+   "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"plotsExpression", "[", 
+    RowBox[{
+    "rep_", ",", "listDataAndTimeTN_", ",", "mRNAffcv2MeanA_", ",", 
+     "proteinffcv2MeanA_", ",", "mRNAffcv2MeanI_", ",", "proteinffcv2MeanI_", 
+     ",", "parametros_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "datesListAm", ",", "datesListAp", ",", "datesListBm", ",", 
+       "datesListBp"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"SetOptions", "[", 
+       RowBox[{"ListLinePlot", ",", 
+        RowBox[{"Frame", "\[Rule]", " ", "True"}], ",", 
+        RowBox[{"ImageSize", "\[Rule]", "Medium"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "datesListAm", ",", "datesListAp", ",", "datesListBm", ",", 
+         "datesListBp"}], "}"}], "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"Transpose", "[", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"listDataAndTimeTN", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "All", ",", "1"}], "]"}], "]"}], "[", 
+             RowBox[{"[", "rep", "]"}], "]"}], ",", 
+            RowBox[{
+             RowBox[{"listDataAndTimeTN", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "All", ",", "2"}], "]"}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"rep", ",", "All", ",", "i"}], "]"}], "]"}]}], "}"}], 
+          "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "4"}], "}"}]}], "]"}]}], ";", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{"datesListAm", ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", "0.6", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<mRNA A molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelA"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{"datesListBm", ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<mRNA B molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelB"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{"datesListAp", ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<protein A molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelAp"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{"datesListBp", ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<protein B molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelBp"}]}], "]"}]}], "}"}]}]}], 
+    "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.835956425670491*^9, 3.835956454832862*^9}, 
+   3.835956494779353*^9, {3.8359565489181232`*^9, 3.835956549658804*^9}, {
+   3.835956622208219*^9, 3.835956742992833*^9}, {3.835956857309696*^9, 
+   3.8359568584709883`*^9}, {3.8359573065042143`*^9, 3.8359573627954483`*^9}, 
+   3.836035221537252*^9, {3.836044431709867*^9, 3.836044583394555*^9}, {
+   3.836044666120776*^9, 3.836044732236813*^9}, {3.8360447883736897`*^9, 
+   3.836044797664207*^9}, {3.836044854311778*^9, 3.836044859692643*^9}, {
+   3.836045419091174*^9, 3.836045452637438*^9}, {3.836045503059761*^9, 
+   3.836045524136383*^9}, {3.836308321526431*^9, 3.836308323948711*^9}, {
+   3.836308408953494*^9, 3.836308416649456*^9}, {3.836308901320918*^9, 
+   3.8363089187481117`*^9}, {3.836310759366042*^9, 3.836310766381001*^9}, {
+   3.836321244328998*^9, 3.8363212485257187`*^9}, {3.83656181270123*^9, 
+   3.8365618222265587`*^9}, {3.836561861279875*^9, 3.836561872961063*^9}, {
+   3.836562085896278*^9, 3.836562098977992*^9}, {3.848857272871722*^9, 
+   3.84885727578297*^9}},ExpressionUUID->"de5a52ea-1dcb-4e28-827d-\
+1f86bbcb3e69"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "plots", " ", "the", " ", "temporal", " ", "dynamic", " ", 
+    "of", " ", "genes", " ", "mRNA", " ", "and", " ", "proteins", " ", "with",
+     " ", "log", " ", "scale"}], " ", "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"plotsLogExpression", "[", 
+    RowBox[{
+    "rep_", ",", "ini_", ",", "listDataAndTimeTN_", ",", "mRNAffcv2MeanA_", 
+     ",", "proteinffcv2MeanA_", ",", "mRNAffcv2MeanI_", ",", 
+     "proteinffcv2MeanI_", ",", "parametros_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "datesListAm", ",", "datesListAp", ",", "datesListBm", ",", 
+       "datesListBp"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"SetOptions", "[", 
+       RowBox[{"ListLogPlot", ",", 
+        RowBox[{"Frame", "\[Rule]", " ", "True"}], ",", 
+        RowBox[{"ImageSize", "\[Rule]", "Medium"}], ",", 
+        RowBox[{"Joined", "->", "True"}]}], "]"}], ";", "\[IndentingNewLine]",
+       "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "datesListAm", ",", "datesListAp", ",", "datesListBm", ",", 
+         "datesListBp"}], "}"}], "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"Transpose", "[", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"listDataAndTimeTN", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "All", ",", "1"}], "]"}], "]"}], "[", 
+             RowBox[{"[", "rep", "]"}], "]"}], ",", 
+            RowBox[{
+             RowBox[{"listDataAndTimeTN", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "All", ",", "2"}], "]"}], "]"}], "[", 
+             RowBox[{"[", 
+              RowBox[{"rep", ",", "All", ",", "i"}], "]"}], "]"}]}], "}"}], 
+          "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "4"}], "}"}]}], "]"}]}], ";", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ListLogPlot", "[", 
+         RowBox[{
+          RowBox[{"datesListAm", "[", 
+           RowBox[{"[", 
+            RowBox[{"ini", ";;"}], "]"}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", "0.6", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<mRNA A molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelA"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLogPlot", "[", 
+         RowBox[{
+          RowBox[{"datesListBm", "[", 
+           RowBox[{"[", 
+            RowBox[{"ini", ";;"}], "]"}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<mRNA B molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelB"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLogPlot", "[", 
+         RowBox[{
+          RowBox[{"datesListAp", "[", 
+           RowBox[{"[", 
+            RowBox[{"ini", ";;"}], "]"}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<protein A molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelAp"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"ListLogPlot", "[", 
+         RowBox[{
+          RowBox[{"datesListBp", "[", 
+           RowBox[{"[", 
+            RowBox[{"ini", ";;"}], "]"}], "]"}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", "\[IndentingNewLine]", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}]}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", "\"\<protein B molecules\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "labelBp"}]}], "]"}]}], "}"}]}]}], 
+    "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.835956425670491*^9, 3.835956454832862*^9}, 
+   3.835956494779353*^9, {3.8359565489181232`*^9, 3.835956549658804*^9}, {
+   3.835956622208219*^9, 3.835956742992833*^9}, {3.835956857309696*^9, 
+   3.8359568584709883`*^9}, {3.8359573065042143`*^9, 3.8359573627954483`*^9}, 
+   3.836035221537252*^9, {3.836044431709867*^9, 3.836044583394555*^9}, {
+   3.836044666120776*^9, 3.836044732236813*^9}, {3.8360447883736897`*^9, 
+   3.836044797664207*^9}, {3.836044854311778*^9, 3.836044859692643*^9}, {
+   3.836045419091174*^9, 3.836045452637438*^9}, {3.836045503059761*^9, 
+   3.836045524136383*^9}, {3.836308321526431*^9, 3.836308323948711*^9}, {
+   3.836308408953494*^9, 3.836308416649456*^9}, {3.836308901320918*^9, 
+   3.8363089187481117`*^9}, {3.836310759366042*^9, 3.836310766381001*^9}, {
+   3.836321244328998*^9, 3.8363212485257187`*^9}, {3.836553202361912*^9, 
+   3.8365532563455467`*^9}, {3.836556527347769*^9, 3.836556528288272*^9}, {
+   3.836556956134016*^9, 3.836556956399806*^9}, {3.836561881890955*^9, 
+   3.836561888780858*^9}, {3.836561974169868*^9, 3.8365619754860697`*^9}, {
+   3.848857314090864*^9, 
+   3.848857315642815*^9}},ExpressionUUID->"e6cf703c-1ae3-4778-9ee8-\
+1b070f2873f0"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"This", " ", "plots", " ", "the", " ", "auto"}], "-", 
+    RowBox[{
+    "correlation", " ", "of", " ", "the", " ", "temporal", " ", "dynamic", 
+     " ", "of", " ", "genes", " ", "mRNA", " ", "and", " ", "proteins"}]}], 
+   " ", "*)"}], 
+  RowBox[{
+   RowBox[{"autoCorrPlot", "[", 
+    RowBox[{"lagStep_", ",", "listDataAndTimeTN_", ",", "positions_"}], "]"}],
+    ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "data", ",", "lenght", ",", "data2", ",", "corr", ",", "negatives", ",",
+        "cortes"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"data", "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"MapThread", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Extract", "[", 
+             RowBox[{"#1", ",", "#2"}], "]"}], "&"}], ",", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"listDataAndTimeTN", "[", 
+               RowBox[{"[", 
+                RowBox[{"All", ",", "All", ",", "2"}], "]"}], "]"}], "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "All", ",", "i"}], "]"}], "]"}], ",", 
+             "positions"}], "}"}]}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", 
+           RowBox[{"{", 
+            RowBox[{"1", ",", "3", ",", "2", ",", "4"}], "}"}]}], "}"}]}], 
+        "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"lenght", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Min", "[", 
+          RowBox[{"Length", "/@", "#"}], "]"}], "&"}], "/@", "data"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"data2", "=", 
+       RowBox[{"MapThread", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"TemporalData", "[", 
+           RowBox[{
+            RowBox[{"#1", "[", 
+             RowBox[{"[", 
+              RowBox[{"All", ",", 
+               RowBox[{"1", ";;", "#2"}]}], "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"Range", "[", 
+              RowBox[{"1", ",", "#2"}], "]"}], "}"}]}], "]"}], "&"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"data", ",", "lenght"}], "}"}]}], "]"}]}], ";", " ", 
+      RowBox[{"(*", 
+       RowBox[{
+       "This", " ", "is", " ", "to", " ", "get", " ", "the", " ", "corr", " ",
+         "in", " ", "each", " ", "lag", " ", "time", " ", "as", " ", "the", 
+        " ", "average", " ", "between", " ", "replicates"}], " ", "*)"}], 
+      "\[IndentingNewLine]", 
+      RowBox[{"DistributeDefinitions", "[", 
+       RowBox[{"data", ",", "data2"}], "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"corr", "=", 
+       RowBox[{"ParallelMap", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"CorrelationFunction", "[", 
+           RowBox[{"#", ",", 
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"#", "[", "\"\<PathLengths\>\"", "]"}], "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "-", "1"}], ",", "lagStep"}], 
+             "}"}]}], "]"}], "&"}], ",", "data2"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"negatives", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"FirstPosition", "[", 
+           RowBox[{
+            RowBox[{"Normal", "[", "#", "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"_", ",", 
+              RowBox[{"_", "?", "Negative"}]}], "}"}]}], "]"}], "*", 
+          "lagStep"}], "&"}], "/@", "corr"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"cortes", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Count", "[", 
+          RowBox[{
+           RowBox[{"Partition", "[", 
+            RowBox[{
+             RowBox[{"#", "//", "Normal"}], ",", "2", ",", "1"}], "]"}], ",", 
+           
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"_", ",", 
+                RowBox[{"_", "?", "Positive"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"_", ",", 
+                RowBox[{"_", "?", "Negative"}]}], "}"}]}], "}"}], "|", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"_", ",", 
+                RowBox[{"_", "?", "Negative"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"_", ",", 
+                RowBox[{"_", "?", "Positive"}]}], "}"}]}], "}"}]}]}], "]"}], 
+         "&"}], "/@", "corr"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"ListPlot", "[", 
+         RowBox[{
+          RowBox[{"#", "[", 
+           RowBox[{"[", "1", "]"}], "]"}], ",", 
+          RowBox[{"Filling", "\[Rule]", "Axis"}], " ", ",", 
+          RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+          RowBox[{"ImageSize", "->", "Medium"}], ",", 
+          RowBox[{"FrameLabel", "->", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"\"\<Lag-\>\"", "<>", 
+              RowBox[{"ToString", "[", "lagStep", "]"}]}], ",", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}], "}"}]}], ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "4", "]"}], "]"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", 
+           RowBox[{"\"\<First negative: \>\"", "<>", 
+            RowBox[{"ToString", "[", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "3", "]"}], "]"}], "]"}], "<>", 
+            "\"\<\\n cortes: \>\"", "<>", 
+            RowBox[{"ToString", "[", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "5", "]"}], "]"}], "]"}]}]}]}], "]"}], "&"}], "/@", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"corr", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], ",", "\"\<mRNA A\>\"", ",", 
+           RowBox[{"negatives", "[", 
+            RowBox[{"[", "1", "]"}], "]"}], ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", "0.6", ",", "1"}], "]"}], ",", 
+           RowBox[{"cortes", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"corr", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], ",", "\"\<mRNA B\>\"", ",", 
+           RowBox[{"negatives", "[", 
+            RowBox[{"[", "2", "]"}], "]"}], ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}], ",", 
+           RowBox[{"cortes", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"corr", "[", 
+            RowBox[{"[", "3", "]"}], "]"}], ",", "\"\<protein A\>\"", ",", 
+           RowBox[{"negatives", "[", 
+            RowBox[{"[", "3", "]"}], "]"}], ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}], ",", 
+           RowBox[{"cortes", "[", 
+            RowBox[{"[", "3", "]"}], "]"}]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"corr", "[", 
+            RowBox[{"[", "4", "]"}], "]"}], ",", "\"\<protein B\>\"", ",", 
+           RowBox[{"negatives", "[", 
+            RowBox[{"[", "4", "]"}], "]"}], ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}], ",", 
+           RowBox[{"cortes", "[", 
+            RowBox[{"[", "4", "]"}], "]"}]}], "}"}]}], "}"}]}]}]}], 
+    "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8363084890460997`*^9, 3.836308520013546*^9}, {
+   3.83630858304049*^9, 3.836308757822487*^9}, {3.8363122892712708`*^9, 
+   3.836312292775556*^9}, {3.836320047578227*^9, 3.836320051118898*^9}, {
+   3.836321943903755*^9, 3.8363219533217297`*^9}, {3.836344744065567*^9, 
+   3.836344808246306*^9}, {3.836344846175098*^9, 3.836344942939027*^9}, {
+   3.836556132832884*^9, 3.836556133830576*^9}, {3.836556248024377*^9, 
+   3.836556249902007*^9}, {3.8365563881695623`*^9, 3.836556389310317*^9}, {
+   3.836557720933641*^9, 3.836557737765324*^9}, {3.8367381352352533`*^9, 
+   3.836738186072028*^9}, 3.836743591493471*^9, {3.837342640983233*^9, 
+   3.837342669099018*^9}, 
+   3.8488573351960697`*^9},ExpressionUUID->"6e92f29a-b035-4302-8d47-\
+0bd31e8f2874"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "plots", " ", "the", " ", "histogram", " ", "of", " ", "the", 
+    " ", "steady", " ", "state", " ", "gene", " ", "expression", " ", "for", 
+    " ", "mRNA", " ", "and", " ", "proteins"}], " ", "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"distriPlot", "[", 
+    RowBox[{"ini_", ",", "listDataAndTimeTN_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "distribucionAm", ",", "distribucionAp", ",", "distribucionBm", ",", 
+       "distribucionBp"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "distribucionAm", ",", "distribucionAp", ",", "distribucionBm", ",", 
+         "distribucionBp"}], "}"}], "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"Flatten", "[", 
+          RowBox[{
+           RowBox[{"listDataAndTimeTN", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", "All", ",", "2"}], "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", 
+             RowBox[{"ini", ";;", "All"}], ",", "i"}], "]"}], "]"}], "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "4"}], "}"}]}], "]"}]}], ";", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Histogram", "[", 
+         RowBox[{
+          RowBox[{"#", "[", 
+           RowBox[{"[", "1", "]"}], "]"}], ",", "Automatic", 
+          RowBox[{"(*", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Min", "[", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "]"}], "//", "Round"}], ",", 
+             RowBox[{
+              RowBox[{"Max", "[", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "]"}], "//", "Round"}], ",", 
+             "5"}], "}"}], "*)"}], ",", "\"\<Probability\>\"", ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", "2", "]"}], "]"}], ",", "\"\<Probability\>\""}], 
+            "}"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "4", "]"}], "]"}], "<>", "\"\< \\n FF: \>\"", "<>", 
+            
+            RowBox[{"ToString", "[", 
+             RowBox[{"ff", "[", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}], "]"}], "]"}], "<>", 
+            "\"\<, \!\(\*SuperscriptBox[\(CV\), \(2\)]\): \>\"", "<>", 
+            RowBox[{"ToString", "[", 
+             RowBox[{"expressionNoise", "[", 
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}], "]"}], "]"}], "<>", 
+            "\"\<, Mean: \>\"", "<>", 
+            RowBox[{"ToString", "[", 
+             RowBox[{
+              RowBox[{"Mean", "[", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "]"}], "//", "N"}], "]"}]}]}],
+           ",", 
+          RowBox[{"ChartStyle", "\[Rule]", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", "3", "]"}], "]"}]}], ",", 
+          RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+          RowBox[{"ImageSize", "\[Rule]", "Medium"}]}], "]"}], "&"}], "/@", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"distribucionAm", ",", "\"\<mRNA A molecules\>\"", ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", "0.6", ",", "1"}], "]"}], ",", "labelA"}], 
+          "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"distribucionBm", ",", "\"\<mRNA B molecules\>\"", ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}], ",", "labelB"}], 
+          "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"distribucionAp", ",", "\"\<protein A molecules\>\"", ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}], ",", "labelAp"}], 
+          "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+          "distribucionBp", ",", "\"\<protein B molecules \>\"", ",", 
+           RowBox[{"RGBColor", "[", 
+            RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}], ",", "labelBp"}], 
+          "}"}]}], "}"}]}]}]}], "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.835957772143385*^9, 3.835957809912073*^9}, {
+   3.8363090700344353`*^9, 3.836309110419917*^9}, 3.836310713449445*^9, {
+   3.836310789284041*^9, 3.836310820601699*^9}, {3.836320505537142*^9, 
+   3.836320513900972*^9}, {3.836320844051798*^9, 3.836320853664172*^9}, {
+   3.8488573455928497`*^9, 
+   3.848857347278076*^9}},ExpressionUUID->"36f6a19b-771c-4135-a3a7-\
+f6d5e577a854"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "plots", " ", "the", " ", "temporal", " ", "dynamics", " ", 
+    "of", " ", "the", " ", "regulator", " ", 
+    RowBox[{"(", "proteins", ")"}], " ", "and", " ", "the", " ", "regulated", 
+    " ", "gene", " ", 
+    RowBox[{"(", 
+     RowBox[{"proteins", " ", "and", " ", "mRNA"}], ")"}], " ", "and", " ", 
+    "indicates", " ", "the", " ", "Pearson", " ", "Correlation", " ", 
+    "between", " ", "temporal", " ", "dynamics", " ", "of", " ", "regulator", 
+    " ", "and", " ", "regulated", " ", "gene"}], " ", "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"corrPlot", "[", 
+    RowBox[{"replicas_", ",", "rep_", ",", "listDataAndTimeTN_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "dataBmRNA", ",", "dataAp", ",", "dataBp", ",", "corremRNA", ",", 
+       "correprotein"}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"dataBmRNA", ",", "dataAp", ",", "dataBp"}], "}"}], "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"#", "/", 
+            RowBox[{"Max", "[", "#", "]"}]}], "&"}], "[", 
+          RowBox[{
+           RowBox[{"listDataAndTimeTN", "[", 
+            RowBox[{"[", 
+             RowBox[{"All", ",", "All", ",", "2"}], "]"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"i", ",", "All", ",", "j"}], "]"}], "]"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"j", ",", 
+           RowBox[{"{", 
+            RowBox[{"3", ",", "2", ",", "4"}], "}"}]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "replicas"}], "}"}]}], "]"}]}], ";", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"corremRNA", ",", "correprotein"}], "}"}], "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Mean", "[", 
+          RowBox[{"Table", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Correlation", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}], "[", 
+                RowBox[{"[", "i", "]"}], "]"}], ",", 
+               RowBox[{
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "2", "]"}], "]"}], "[", 
+                RowBox[{"[", "i", "]"}], "]"}]}], "]"}], "//", "N"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"i", ",", "replicas"}], "}"}]}], "]"}], "]"}], "&"}], "/@", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"dataAp", ",", "dataBmRNA"}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"dataAp", ",", "dataBp"}], "}"}]}], "}"}]}]}], ";", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Transpose", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listDataAndTimeTN", "[", 
+                RowBox[{"[", 
+                 RowBox[{"rep", ",", "All", ",", "1"}], "]"}], "]"}], ",", 
+               RowBox[{"dataAp", "[", 
+                RowBox[{"[", "rep", "]"}], "]"}]}], "}"}], "]"}], ",", 
+            RowBox[{"Transpose", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listDataAndTimeTN", "[", 
+                RowBox[{"[", 
+                 RowBox[{"rep", ",", "All", ",", "1"}], "]"}], "]"}], ",", 
+               RowBox[{"dataBmRNA", "[", 
+                RowBox[{"[", "rep", "]"}], "]"}]}], "}"}], "]"}]}], "}"}], 
+          ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"RGBColor", "[", 
+              RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}], ",", 
+             RowBox[{"RGBColor", "[", 
+              RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}]}], "}"}]}], ",", 
+          RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+          RowBox[{"ImageSize", "\[Rule]", "Medium"}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", 
+           RowBox[{"\"\<Pearson Correlation: \>\"", "<>", 
+            RowBox[{"ToString", "[", "corremRNA", "]"}]}]}], ",", 
+          RowBox[{"PlotLegends", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<protein A\>\"", ",", "\"\<mRNA B\>\""}], "}"}]}]}], 
+         "]"}], ",", 
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Transpose", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listDataAndTimeTN", "[", 
+                RowBox[{"[", 
+                 RowBox[{"rep", ",", "All", ",", "1"}], "]"}], "]"}], ",", 
+               RowBox[{"dataAp", "[", 
+                RowBox[{"[", "rep", "]"}], "]"}]}], "}"}], "]"}], ",", 
+            RowBox[{"Transpose", "[", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listDataAndTimeTN", "[", 
+                RowBox[{"[", 
+                 RowBox[{"rep", ",", "All", ",", "1"}], "]"}], "]"}], ",", 
+               RowBox[{"dataBp", "[", 
+                RowBox[{"[", "rep", "]"}], "]"}]}], "}"}], "]"}]}], "}"}], 
+          ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"RGBColor", "[", 
+              RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}], ",", 
+             RowBox[{"RGBColor", "[", 
+              RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}]}], "}"}]}], ",", 
+          
+          RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+          RowBox[{"ImageSize", "\[Rule]", "Medium"}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", 
+           RowBox[{"\"\<Pearson Correlation: \>\"", "<>", 
+            RowBox[{"ToString", "[", "correprotein", "]"}]}]}], ",", 
+          RowBox[{"PlotLegends", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<protein A\>\"", ",", "\"\<protein B\>\""}], 
+            "}"}]}]}], "]"}]}], "}"}]}]}], "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8363455320966597`*^9, 3.836345590505087*^9}, {
+  3.8363475713990173`*^9, 3.836347621716632*^9}, {3.836347902072506*^9, 
+  3.836347908195405*^9}, {3.8363866248598433`*^9, 3.836386640906415*^9}, {
+  3.8488573576572437`*^9, 
+  3.848857358966518*^9}},ExpressionUUID->"eaaa453c-7917-408e-81aa-\
+a1ef9ce1882b"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "plots", " ", "the", " ", "velocity", " ", "of", " ", "the", 
+    " ", "temporal", " ", "dynamic", " ", "of", "  ", "gene", " ", 
+    "expression"}], " ", "*)"}], 
+  RowBox[{
+   RowBox[{"veloPlot", "[", 
+    RowBox[{"rep_", ",", "listDataAndTimeTN_", ",", "positionsVelocity_"}], 
+    "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"listS", ",", "listT", ",", "velocidades"}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"listS", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"Extract", "[", 
+            RowBox[{
+             RowBox[{"#", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "i"}], "]"}], "]"}], ",", 
+             "positionsVelocity"}], "]"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "4"}], "}"}]}], "]"}], "&"}], "[", 
+        RowBox[{"listDataAndTimeTN", "[", 
+         RowBox[{"[", 
+          RowBox[{"rep", ",", "All", ",", "2"}], "]"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"listT", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Extract", "[", 
+          RowBox[{"#", ",", "positionsVelocity"}], "]"}], "&"}], "[", 
+        RowBox[{"listDataAndTimeTN", "[", 
+         RowBox[{"[", 
+          RowBox[{"rep", ",", "All", ",", "1"}], "]"}], "]"}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"velocidades", "=", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"listS", "[", 
+             RowBox[{"[", 
+              RowBox[{"i", ",", 
+               RowBox[{"2", ";;"}]}], "]"}], "]"}], "-", 
+            RowBox[{"listS", "[", 
+             RowBox[{"[", 
+              RowBox[{"i", ",", 
+               RowBox[{";;", 
+                RowBox[{"-", "2"}]}]}], "]"}], "]"}]}], ")"}], "/", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"listT", "[", 
+             RowBox[{"[", 
+              RowBox[{"2", ";;"}], "]"}], "]"}], "-", 
+            RowBox[{"listT", "[", 
+             RowBox[{"[", 
+              RowBox[{";;", 
+               RowBox[{"-", "2"}]}], "]"}], "]"}]}], ")"}]}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "4"}], "}"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"ListLinePlot", "[", 
+         RowBox[{
+          RowBox[{"Transpose", "[", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"listT", "[", 
+              RowBox[{"[", 
+               RowBox[{"2", ";;"}], "]"}], "]"}], ",", 
+             RowBox[{"velocidades", "[", 
+              RowBox[{"[", 
+               RowBox[{"i", "[", 
+                RowBox[{"[", "1", "]"}], "]"}], "]"}], "]"}]}], "}"}], "]"}], 
+          ",", 
+          RowBox[{"PlotStyle", "\[Rule]", 
+           RowBox[{"i", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+          RowBox[{"PlotLabel", "\[Rule]", "\"\<Velocities\>\""}], ",", 
+          RowBox[{"FrameLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<time\>\"", ",", 
+             RowBox[{"i", "[", 
+              RowBox[{"[", "3", "]"}], "]"}]}], "}"}]}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"1", ",", 
+              RowBox[{"RGBColor", "[", 
+               RowBox[{"0.2", ",", "0.6", ",", "1"}], "]"}], ",", 
+              "\"\<mRNA A molecules\>\""}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"2", ",", 
+              RowBox[{"RGBColor", "[", 
+               RowBox[{"0.2", ",", ".8", ",", "1"}], "]"}], ",", 
+              "\"\<protein A molecules\>\""}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"3", ",", 
+              RowBox[{"RGBColor", "[", 
+               RowBox[{"0.5", ",", "0.99", ",", "1"}], "]"}], ",", 
+              "\"\<mRNA B molecules\>\""}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"4", ",", 
+              RowBox[{"RGBColor", "[", 
+               RowBox[{"0.3", ",", ".09", ",", "0.7"}], "]"}], ",", 
+              "\"\<protein B molecules\>\""}], "}"}]}], "}"}]}], "}"}]}], 
+       "]"}]}]}], "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.835878115970096*^9, 3.835878180445485*^9}, {
+   3.835878229224677*^9, 3.8358782414908123`*^9}, 3.8359622210092573`*^9, {
+   3.835962587555867*^9, 3.835962612625252*^9}, 3.835963048931645*^9, 
+   3.8359631665313063`*^9, {3.835963260171929*^9, 3.835963270144595*^9}, {
+   3.836312229591372*^9, 3.836312238646036*^9}, {3.836312332509041*^9, 
+   3.836312343231007*^9}, 3.836312402606963*^9, {3.836312502732435*^9, 
+   3.8363125136434107`*^9}, {3.836312592643194*^9, 3.836312657507166*^9}, {
+   3.8363127204727173`*^9, 3.836312721420375*^9}, {3.836320071411654*^9, 
+   3.8363200830527782`*^9}, {3.8363846223364162`*^9, 
+   3.8363846247017107`*^9}, {3.8365583601191883`*^9, 3.836558391637417*^9}, {
+   3.836558458266934*^9, 3.836558480070259*^9}, {3.837342974516633*^9, 
+   3.83734299716366*^9}, 3.8373430340002527`*^9, 
+   3.848857369867052*^9},ExpressionUUID->"d74547b5-3435-402d-890b-\
+470afa20ec6a"],
+
+Cell["\<\
+This function runs the GA algorithm and processes the output according to the \
+previous functions.\
+\>", "Text",
+ CellChangeTimes->{{3.836307336495537*^9, 3.8363073888182163`*^9}, {
+   3.836307974297868*^9, 3.836307992041484*^9}, {3.8363082188827553`*^9, 
+   3.836308298252089*^9}, 3.848857390058131*^9},
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"42c5cefe-7748-4c0f-acc3-482fe4751f4c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"simu", "[", 
+   RowBox[{
+   "iteraciones_", ",", "replicas_", ",", "h_", ",", "kAB_", ",", "kmA_", ",",
+     "\[Gamma]mA_", ",", "kpA_", ",", "\[Gamma]pA_", ",", "kmB_", ",", 
+    "\[Gamma]mB_", ",", "kpB_", ",", "\[Gamma]pB_", ",", "rep_", ",", 
+    "parametros_", ",", "lagStep_", ",", "species_"}], "]"}], ":=", 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+     "listEstimatemRNAA", ",", "listEstimateproteinA", ",", 
+      "listEstimatemRNAI", ",", "listEstimateproteinI", ",", 
+      "listDataAndTimeT", ",", "listDataAndTime", ",", "t", ",", "abundancia",
+       ",", "\[Tau]is", ",", "reactionAnd\[Tau]\[Mu]", ",", "listData", ",", 
+      "mRNAffcv2ItA", ",", "proteinffcv2ItA", ",", "mRNAffcv2ItI", ",", 
+      "proteinffcv2ItI", ",", "mRNAffcv2MeanA", ",", "proteinffcv2MeanA", ",",
+       "mRNAffcv2MeanI", ",", "proteinffcv2MeanI", ",", "listDataAndTimeTN", 
+      ",", "positions", ",", "ini"}], "}"}], ",", "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"DistributeDefinitions", "[", 
+      RowBox[{
+      "changesByRXN", ",", "pF", ",", "ff", ",", "expressionNoise", ",", 
+       "iteraciones", ",", "h", ",", "kAB", ",", "kmA", ",", "\[Gamma]mA", 
+       ",", "kpA", ",", "\[Gamma]pA", ",", "kmB", ",", "\[Gamma]mB", ",", 
+       "kpB", ",", "\[Gamma]pB"}], "]"}], ";", "\n", "\[IndentingNewLine]", 
+     RowBox[{"listEstimatemRNAA", "=", 
+      RowBox[{"{", "}"}]}], ";", "\n", 
+     RowBox[{"listEstimateproteinA", "=", 
+      RowBox[{"{", "}"}]}], ";", "\n", 
+     RowBox[{"listEstimatemRNAI", "=", 
+      RowBox[{"{", "}"}]}], ";", "\n", 
+     RowBox[{"listEstimateproteinI", "=", 
+      RowBox[{"{", "}"}]}], ";", "\n", 
+     RowBox[{"listDataAndTimeT", "=", 
+      RowBox[{"{", "}"}]}], ";", "\n", "\n", 
+     RowBox[{"SetSharedVariable", "[", 
+      RowBox[{
+      "listEstimatemRNAA", ",", "listEstimateproteinA", ",", 
+       "listEstimatemRNAI", ",", "listEstimateproteinI", ",", 
+       "listDataAndTimeT"}], "]"}], ";", "\n", "\n", 
+     RowBox[{"ParallelDo", "[", "\n", "\n", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"listDataAndTime", "=", 
+         RowBox[{
+         "CreateDataStructure", "[", "\"\<OrderedHashSet\>\"", "]"}]}], ";", 
+        "\n", 
+        RowBox[{"t", "=", "0"}], ";", "\n", 
+        RowBox[{"abundancia", "=", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "1", ",", "1", ",", "1"}], "}"}]}], 
+        RowBox[{"(*", 
+         RowBox[{
+         "mRNAA", ",", "proteinA", ",", "mRNAI", ",", "proteinI", ",", "da0A",
+           ",", "da1A", ",", "db0I", ",", "db1I"}], "*)"}], ";", "\n", "\n", 
+        "\n", 
+        RowBox[{"Do", "[", "\n", "          ", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"\[Tau]is", "=", 
+            RowBox[{"Map", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{"#", ">", "0"}], ",", 
+                 RowBox[{"RandomVariate", "[", 
+                  RowBox[{"ExponentialDistribution", "[", "#", "]"}], "]"}], 
+                 ",", "\[Infinity]"}], "]"}], "&"}], ",", 
+              RowBox[{"pF", "[", 
+               RowBox[{
+               "h", ",", "kAB", ",", "kmA", ",", "\[Gamma]mA", ",", "kpA", 
+                ",", "\[Gamma]pA", ",", "kmB", ",", "\[Gamma]mB", ",", "kpB", 
+                ",", "\[Gamma]pB", ",", 
+                RowBox[{"Sequence", "@@", "abundancia"}]}], "]"}]}], "]"}]}], 
+           ";", 
+           RowBox[{"reactionAnd\[Tau]\[Mu]", "=", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"FirstPosition", "[", 
+                 RowBox[{"#", ",", 
+                  RowBox[{"Min", "[", "#", "]"}]}], "]"}], ",", 
+                RowBox[{"Min", "[", "#", "]"}]}], "}"}], "&"}], "[", 
+             "\[Tau]is", "]"}]}], ";", 
+           RowBox[{"abundancia", "=", 
+            RowBox[{
+             RowBox[{"Through", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{"reactionAnd\[Tau]\[Mu]", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}], "/.", "changesByRXN"}], 
+                 "}"}], "[", 
+                RowBox[{"[", 
+                 RowBox[{"1", ",", "1"}], "]"}], "]"}], "@@", "abundancia"}], 
+              "]"}], "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}], ";", 
+           RowBox[{"t", "=", 
+            RowBox[{"t", "+", 
+             RowBox[{"reactionAnd\[Tau]\[Mu]", "[", 
+              RowBox[{"[", "2", "]"}], "]"}]}]}], ";", 
+           RowBox[{"listDataAndTime", "[", 
+            RowBox[{"\"\<Union\>\"", ",", 
+             RowBox[{"{", 
+              RowBox[{"{", 
+               RowBox[{"t", ",", "abundancia"}], "}"}], "}"}]}], "]"}], ";", 
+           "\[IndentingNewLine]", "  ", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Length", "[", "#", "]"}], ">", "3"}], "&&", 
+                RowBox[{
+                 RowBox[{"#", "[", 
+                  RowBox[{"[", "2", "]"}], "]"}], "==", "5"}]}], "&"}], "[", 
+              RowBox[{"IntegerDigits", "[", 
+               RowBox[{"Round", "[", "t", "]"}], "]"}], "]"}], 
+             RowBox[{"(*", " ", 
+              RowBox[{
+              "para", " ", "que", " ", "Break", " ", "a", " ", "los", " ", 
+               "1500"}], "*)"}], ",", " ", 
+             RowBox[{"Break", "[", "]"}]}], "]"}]}], ",", "iteraciones"}], 
+         "]"}], ";", "\n", "\n", 
+        RowBox[{"listData", "=", 
+         RowBox[{
+          RowBox[{"Normal", "[", "listDataAndTime", "]"}], "[", 
+          RowBox[{"[", 
+           RowBox[{"All", ",", "2"}], "]"}], "]"}]}], ";", 
+        "\[IndentingNewLine]", " ", 
+        RowBox[{"ini", " ", "=", 
+         RowBox[{"Round", "[", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"Length", "[", "listData", "]"}], "*", "30"}], ")"}], 
+           "/", "100."}], "]"}]}], ";", "\n", "\n", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"mRNAffcv2ItA", ",", "proteinffcv2ItA"}], "}"}], "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"ff", "[", 
+              RowBox[{"Flatten", "@", "i"}], "]"}], ",", 
+             RowBox[{"expressionNoise", "[", 
+              RowBox[{"Flatten", "@", "i"}], "]"}], ",", 
+             RowBox[{
+              RowBox[{"Mean", "[", 
+               RowBox[{"Flatten", "@", "i"}], "]"}], "//", "N"}]}], "}"}], 
+           ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listData", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"ini", ";;", "All"}], ",", "1"}], "]"}], "]"}], ",",
+                "\n", 
+               RowBox[{"listData", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"ini", ";;", "All"}], ",", "2"}], "]"}], "]"}]}], 
+              "}"}]}], "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"mRNAffcv2ItI", ",", "proteinffcv2ItI"}], "}"}], "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"ff", "[", 
+              RowBox[{"Flatten", "@", "i"}], "]"}], ",", 
+             RowBox[{"expressionNoise", "[", 
+              RowBox[{"Flatten", "@", "i"}], "]"}], ",", 
+             RowBox[{
+              RowBox[{"Mean", "[", 
+               RowBox[{"Flatten", "@", "i"}], "]"}], "//", "N"}]}], "}"}], 
+           ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"listData", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"ini", ";;", "All"}], ",", "3"}], "]"}], "]"}], ",",
+                "\n", 
+               RowBox[{"listData", "[", 
+                RowBox[{"[", 
+                 RowBox[{
+                  RowBox[{"ini", ";;", "All"}], ",", "4"}], "]"}], "]"}]}], 
+              "}"}]}], "}"}]}], "]"}]}], ";", "\n", "\n", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"listEstimatemRNAA", ",", "mRNAffcv2ItA"}], "]"}], ";", "\n", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"listEstimateproteinA", ",", "proteinffcv2ItA"}], "]"}], ";",
+         "\n", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"listEstimatemRNAI", ",", "mRNAffcv2ItI"}], "]"}], ";", "\n", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"listEstimateproteinI", ",", "proteinffcv2ItI"}], "]"}], ";",
+         "\n", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"listDataAndTimeT", ",", "listDataAndTime"}], "]"}], ";"}], 
+       ",", "\n", "\n", "replicas"}], "]"}], ";", "\n", "\n", "\n", 
+     RowBox[{"mRNAffcv2MeanA", "=", 
+      RowBox[{"Mean", "[", "listEstimatemRNAA", "]"}]}], ";", "\n", 
+     RowBox[{"proteinffcv2MeanA", "=", 
+      RowBox[{"Mean", "[", "listEstimateproteinA", "]"}]}], ";", "\n", 
+     RowBox[{"mRNAffcv2MeanI", "=", 
+      RowBox[{"Mean", "[", "listEstimatemRNAI", "]"}]}], ";", "\n", 
+     RowBox[{"proteinffcv2MeanI", "=", 
+      RowBox[{"Mean", "[", "listEstimateproteinI", "]"}]}], ";", "\n", "\n", 
+     RowBox[{"Export", "[", 
+      RowBox[{
+       RowBox[{
+       "\"\<controlABGAActivaConst_\>\"", "<>", "parametros", "<>", 
+        "\"\<.csv\>\""}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+        "listEstimatemRNAA", ",", "listEstimateproteinA", ",", 
+         "listEstimatemRNAI", ",", "listEstimateproteinI"}], "}"}]}], "]"}], 
+     ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"listDataAndTimeTN", "=", 
+      RowBox[{"Normal", "/@", "listDataAndTimeT"}]}], ";", 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"labelA", ",", "labelB", ",", "labelAp", ",", "labelBp"}], 
+       "}"}], "=", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"\"\<FF: \>\"", "<>", 
+         RowBox[{"ToString", "[", 
+          RowBox[{"i", "[", 
+           RowBox[{"[", "1", "]"}], "]"}], "]"}], "<>", "\"\< CV2: \>\"", "<>", 
+         RowBox[{"ToString", "[", 
+          RowBox[{"i", "[", 
+           RowBox[{"[", "2", "]"}], "]"}], "]"}], "<>", "\"\< Mean: \>\"", "<>", 
+         RowBox[{"ToString", "[", 
+          RowBox[{"i", "[", 
+           RowBox[{"[", "3", "]"}], "]"}], "]"}], "<>", "parametros"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "mRNAffcv2MeanA", ",", "mRNAffcv2MeanI", ",", "proteinffcv2MeanA", 
+            ",", "proteinffcv2MeanI"}], "}"}]}], "}"}]}], "]"}]}], ";", 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"ini", " ", "=", 
+      RowBox[{"Round", "[", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Length", "[", 
+           RowBox[{"listDataAndTimeTN", "[", 
+            RowBox[{"[", "rep", "]"}], "]"}], "]"}], "*", "30"}], ")"}], "/", 
+        "100."}], "]"}]}], " ", ";", "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", 
+     RowBox[{"positions", "=", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"DeleteCases", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"FirstPosition", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"listDataAndTimeTN", "[", 
+                RowBox[{"[", 
+                 RowBox[{"i", ",", "All", ",", "1"}], "]"}], "]"}], "//", 
+               "Round"}], ",", "#"}], "]"}], "&"}], "/@", 
+           RowBox[{"Range", "[", 
+            RowBox[{"1", ",", "1500", ",", "1"}], "]"}]}], ",", 
+          RowBox[{"Missing", "[", "\"\<NotFound\>\"", "]"}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", "replicas"}], "}"}]}], "]"}]}], ";", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{"These", " ", "are", " ", "the", " ", "positions", " ", 
+        RowBox[{"the", " ", "~", "1500"}], " ", "points", " ", "to", " ", 
+        "get", " ", "the", " ", "velocities", " ", "and", " ", "the", " ", 
+        "auto"}], "-", 
+       RowBox[{"correlation", " ", "plot"}]}], "*)"}], "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"plotsExpression", "[", 
+        RowBox[{
+        "rep", ",", "listDataAndTimeTN", ",", "mRNAffcv2MeanA", ",", 
+         "proteinffcv2MeanA", ",", "mRNAffcv2MeanI", ",", "proteinffcv2MeanI",
+          ",", "parametros"}], "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"plotsLogExpression", "[", 
+        RowBox[{
+        "rep", ",", "ini", ",", "listDataAndTimeTN", ",", "mRNAffcv2MeanA", 
+         ",", "proteinffcv2MeanA", ",", "mRNAffcv2MeanI", ",", 
+         "proteinffcv2MeanI", ",", "parametros"}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"autoCorrPlot", "[", 
+        RowBox[{"lagStep", ",", "listDataAndTimeTN", ",", "positions"}], 
+        "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"distriPlot", "[", 
+        RowBox[{"ini", ",", "listDataAndTimeTN"}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"corrPlot", "[", 
+        RowBox[{"replicas", ",", "rep", ",", "listDataAndTimeTN"}], "]"}], 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{"veloPlot", "[", 
+        RowBox[{"rep", ",", "listDataAndTimeTN", ",", 
+         RowBox[{"positions", "[", 
+          RowBox[{"[", "rep", "]"}], "]"}]}], "]"}]}], "}"}]}]}], 
+   "]"}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8360443455828857`*^9, 3.8360443627350197`*^9}, {
+   3.836044899405451*^9, 3.836044965558483*^9}, {3.836045053351287*^9, 
+   3.836045068984909*^9}, {3.836045122519693*^9, 3.836045127337977*^9}, {
+   3.836045179994783*^9, 3.836045220449623*^9}, {3.836045294679978*^9, 
+   3.8360453027295513`*^9}, {3.8360453901551533`*^9, 3.836045487940649*^9}, 
+   3.836045534087018*^9, {3.836045566481608*^9, 3.836045723507909*^9}, {
+   3.836045755155098*^9, 3.8360458256225986`*^9}, {3.836045908355595*^9, 
+   3.83604597148218*^9}, {3.836046397409317*^9, 3.836046417697345*^9}, 
+   3.8360464687004766`*^9, 3.8360465829771442`*^9, {3.83604677305898*^9, 
+   3.836046775605442*^9}, {3.836307808938849*^9, 3.836307842228778*^9}, {
+   3.836307935734478*^9, 3.836307948975857*^9}, 3.836308331565077*^9, {
+   3.836308428528862*^9, 3.836308452193677*^9}, {3.836308789988614*^9, 
+   3.836308826585816*^9}, {3.8363088571860332`*^9, 3.836308882640061*^9}, {
+   3.836310772545759*^9, 3.83631077358722*^9}, {3.836310904516094*^9, 
+   3.836310926216998*^9}, 3.8363123027445087`*^9, {3.836312485152802*^9, 
+   3.836312495439315*^9}, {3.83631267602302*^9, 3.8363127136687613`*^9}, {
+   3.8363196250870037`*^9, 3.836319669150135*^9}, {3.8363199528711033`*^9, 
+   3.836319955129187*^9}, {3.836320117930768*^9, 3.8363201316946087`*^9}, {
+   3.836320248344159*^9, 3.836320252867303*^9}, {3.8363207606470613`*^9, 
+   3.836320773072398*^9}, {3.8363208849963083`*^9, 3.836320912281629*^9}, {
+   3.836320982735756*^9, 3.836320988018779*^9}, {3.8363428975215673`*^9, 
+   3.836342920644412*^9}, {3.836346234786047*^9, 3.8363462363233624`*^9}, {
+   3.836384630763708*^9, 3.836384633370194*^9}, {3.836554893255814*^9, 
+   3.83655489415837*^9}, 3.836554929453467*^9, {3.836555884247232*^9, 
+   3.8365559072508*^9}, 3.8365568580567636`*^9, {3.836557380656354*^9, 
+   3.8365573985428247`*^9}, 3.8365609408260813`*^9, {3.836561847636146*^9, 
+   3.836561852003723*^9}, 3.8365621161562033`*^9, {3.836564724926256*^9, 
+   3.83656473002559*^9}, 3.836577048219376*^9, {3.836744003576293*^9, 
+   3.836744048570963*^9}, {3.8375081135129128`*^9, 3.8375081533217583`*^9}, {
+   3.83750820093293*^9, 3.837508234470042*^9}, {3.837508356950026*^9, 
+   3.8375083592257233`*^9}, 3.837508397667788*^9, 3.837508484320992*^9, {
+   3.83750854080442*^9, 3.837508591568878*^9}, {3.837508926351972*^9, 
+   3.837508935425767*^9}},ExpressionUUID->"417093a4-e434-49cb-b74c-\
+7d96961c3da3"],
+
+Cell[CellGroupData[{
+
+Cell["Simulation", "Subsection",
+ CellChangeTimes->{{3.8372517565841722`*^9, 
+  3.837251760137501*^9}},ExpressionUUID->"66431645-000c-4e7b-aac1-\
+45849d8d2f68"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"s", "=", 
+   RowBox[{"simu", "[", 
+    RowBox[{
+    "iteraciones2", ",", "replicas2", ",", "h", ",", "kAB", ",", "kmA", ",", 
+     "\[Gamma]mA", ",", "kpA", ",", "\[Gamma]pA", ",", "kmB", ",", 
+     "\[Gamma]mB", ",", "kpB", ",", "\[Gamma]pB", ",", "rep", ",", 
+     "\"\<\\n Default para\>\"", 
+     RowBox[{"(*", "parametros", "*)"}], ",", "lagStep", ",", "species"}], 
+    "]"}]}], ";"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8360464916664963`*^9, 3.83604651556649*^9}, 
+   3.8360467819976254`*^9, {3.836312745432199*^9, 3.836312771430313*^9}, {
+   3.8363193982958193`*^9, 3.836319445176947*^9}, {3.836319754384221*^9, 
+   3.836319864752488*^9}, 3.836319935184613*^9, {3.8363219628512287`*^9, 
+   3.836321966645012*^9}, {3.836342926211046*^9, 3.8363429385656357`*^9}, {
+   3.8363473629376907`*^9, 3.8363473683159037`*^9}, {3.8363480564960003`*^9, 
+   3.836348059807535*^9}, {3.8363488878872213`*^9, 3.836348943278432*^9}, {
+   3.836348977317216*^9, 3.836349077561832*^9}, {3.8363498432024603`*^9, 
+   3.836349907407345*^9}, {3.836349952594741*^9, 3.8363499827187634`*^9}, {
+   3.8363500308418083`*^9, 3.836350099767333*^9}, {3.836350297806363*^9, 
+   3.836350411418659*^9}, 3.8363504567612877`*^9, {3.836555846791275*^9, 
+   3.836555872133133*^9}, {3.836555933045456*^9, 3.8365559533866167`*^9}, 
+   3.8365559841878757`*^9, {3.836556256025879*^9, 3.836556257186714*^9}, 
+   3.836557339330653*^9, {3.836558100025803*^9, 3.836558101556933*^9}, 
+   3.8365616947647667`*^9, {3.8365630436371117`*^9, 3.836563079908943*^9}, {
+   3.836563347833395*^9, 3.836563348884768*^9}, {3.836564154186184*^9, 
+   3.8365641772130737`*^9}, {3.836564363494382*^9, 3.836564364322789*^9}, {
+   3.83656447426276*^9, 3.8365644747865753`*^9}, {3.83656455917105*^9, 
+   3.836564559375704*^9}, {3.836566261236136*^9, 3.8365662893918858`*^9}, {
+   3.8365777882125673`*^9, 3.836577862583881*^9}, {3.836579586910359*^9, 
+   3.836579618226326*^9}, {3.8365805899219923`*^9, 3.836580593832098*^9}, {
+   3.83658384270963*^9, 3.836583875597728*^9}, {3.836583909879257*^9, 
+   3.836584106128688*^9}, {3.836584224512725*^9, 3.836584228354636*^9}, {
+   3.836584320521798*^9, 3.836584353118621*^9}, {3.8366540420320387`*^9, 
+   3.8366540955278893`*^9}, {3.836654131541625*^9, 3.836654132772901*^9}, {
+   3.836654171638301*^9, 3.836654184358762*^9}, {3.8366542311438427`*^9, 
+   3.836654262271751*^9}, {3.836654306558696*^9, 3.836654311383135*^9}, {
+   3.83665436368542*^9, 3.836654365121243*^9}, {3.83665449345595*^9, 
+   3.836654538446477*^9}, {3.836657830685307*^9, 3.836657831033243*^9}, {
+   3.836657992932832*^9, 3.836657994622883*^9}, {3.836658611815669*^9, 
+   3.836658614446474*^9}, {3.836658747958441*^9, 3.8366587764086933`*^9}, {
+   3.8366589970721197`*^9, 3.836658997300149*^9}, {3.836659151015794*^9, 
+   3.836659305452746*^9}, {3.8366594997590647`*^9, 3.836659503003533*^9}, {
+   3.836659598978652*^9, 3.8366595991770287`*^9}, {3.836694502134987*^9, 
+   3.836694505285797*^9}, 3.836694540162931*^9, {3.836744064570648*^9, 
+   3.836744179988511*^9}, {3.836744321671282*^9, 3.836744325912703*^9}, 
+   3.836744366893841*^9, {3.8367444002713337`*^9, 3.8367444247316513`*^9}, {
+   3.8367449637064238`*^9, 3.8367449776039953`*^9}, {3.836747333623732*^9, 
+   3.8367473346762733`*^9}, {3.837508618067581*^9, 3.8375086723521833`*^9}, {
+   3.837512003474412*^9, 
+   3.837512033776726*^9}},ExpressionUUID->"8cb52dfb-3add-443d-9cd8-\
+67d2cdf365ff"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Export", "[", 
+   RowBox[{"\"\<controlABGAActivaConstReg.pdf\>\"", ",", "s"}], "]"}], 
+  ";"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.8375120542151937`*^9, 
+  3.837512069132338*^9}},ExpressionUUID->"eae6e01b-0a6c-4616-8f8b-\
+f512a6f9d71e"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{584.4, 608.4},
+WindowMargins->{{
+  31.799999999999997`, Automatic}, {-4.199999999999932, Automatic}},
+TaggingRules->Association["TryRealOnly" -> False],
+Magnification:>0.75 Inherited,
+FrontEndVersion->"12.3 for Linux x86 (64-bit) (June 24, 2021)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"f4711b5e-ec36-4409-9ca1-371cf950d222"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[561, 20, 498, 9, 53, "Text",ExpressionUUID->"6b40758c-0b98-4460-a858-33b90e903e9d"],
+Cell[CellGroupData[{
+Cell[1084, 33, 203, 4, 50, "Section",ExpressionUUID->"d439c723-c551-4bcf-9854-dda4fda5c45b"],
+Cell[1290, 39, 4767, 100, 129, "Input",ExpressionUUID->"82110e4b-af8e-4791-b6f7-468c1bd84339",
+ InitializationCell->True],
+Cell[6060, 141, 1524, 39, 114, "Input",ExpressionUUID->"1591f7b9-db4c-4803-ba87-303e5299f7f5",
+ InitializationCell->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7621, 185, 154, 3, 50, "Section",ExpressionUUID->"3c881c07-84df-44cc-86f2-607b374d6dcb"],
+Cell[7778, 190, 458, 8, 53, "Text",ExpressionUUID->"7950fe7c-de80-49a3-915f-7e8fd39ea956"],
+Cell[8239, 200, 7624, 161, 306, "Input",ExpressionUUID->"a5927c5f-8c5e-4fb5-a176-4196f022abf8",
+ InitializationCell->True],
+Cell[15866, 363, 333, 7, 53, "Text",ExpressionUUID->"2d55d588-e79c-46c6-b974-aa979e745b74"],
+Cell[16202, 372, 938, 26, 82, "Input",ExpressionUUID->"ebdb7fd8-c1df-4604-b185-70dc0bb7202c",
+ InitializationCell->True],
+Cell[17143, 400, 190, 4, 37, "Text",ExpressionUUID->"e8c6e1eb-9bfa-4792-90cf-af42bb2db88f"],
+Cell[17336, 406, 5087, 111, 350, "Input",ExpressionUUID->"de5a52ea-1dcb-4e28-827d-1f86bbcb3e69",
+ InitializationCell->True],
+Cell[22426, 519, 5686, 126, 350, "Input",ExpressionUUID->"e6cf703c-1ae3-4778-9ee8-1b070f2873f0",
+ InitializationCell->True],
+Cell[28115, 647, 8316, 206, 444, "Input",ExpressionUUID->"6e92f29a-b035-4302-8d47-0bd31e8f2874",
+ InitializationCell->True],
+Cell[36434, 855, 4751, 116, 260, "Input",ExpressionUUID->"36f6a19b-771c-4135-a3a7-f6d5e577a854",
+ InitializationCell->True],
+Cell[41188, 973, 6365, 155, 350, "Input",ExpressionUUID->"eaaa453c-7917-408e-81aa-a1ef9ce1882b",
+ InitializationCell->True],
+Cell[47556, 1130, 5322, 133, 240, "Input",ExpressionUUID->"d74547b5-3435-402d-890b-470afa20ec6a",
+ InitializationCell->True],
+Cell[52881, 1265, 411, 8, 37, "Text",ExpressionUUID->"42c5cefe-7748-4c0f-acc3-482fe4751f4c"],
+Cell[53295, 1275, 16183, 358, 1468, "Input",ExpressionUUID->"417093a4-e434-49cb-b74c-7d96961c3da3",
+ InitializationCell->True],
+Cell[CellGroupData[{
+Cell[69503, 1637, 160, 3, 41, "Subsection",ExpressionUUID->"66431645-000c-4e7b-aac1-45849d8d2f68"],
+Cell[69666, 1642, 3470, 53, 51, "Input",ExpressionUUID->"8cb52dfb-3add-443d-9cd8-67d2cdf365ff",
+ InitializationCell->True],
+Cell[73139, 1697, 295, 8, 34, "Input",ExpressionUUID->"eae6e01b-0a6c-4616-8f8b-f512a6f9d71e",
+ InitializationCell->True]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
