@@ -1,6 +1,5 @@
 # Study and modeling of dynamical properties in the conservative gene regulatory networks in animal development
-This repository contains the main code, data, and figures of the project. All code is written in Mathematica. A description of the files is in next table: 
-
+This repository contains the main code, data, and figures of the project. All code is written in Mathematica. 
 ## Description of files in this repository
 
 The main folders have files of the main methodological procedures and results got in `mainText`. Each one of these folders contain the scripts for simulations `~/scripts/`, the output files for some of the scripts `~/outData/`, and the output figures for some data `~/outFigures/`. 
