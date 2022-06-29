@@ -4,6 +4,9 @@
 (*Here it is evaluated the noise in a cell colony where each cell expresses a self-regulated gene. The cells are connected by diffusion of the genetic product (i.e. paracrine signal). In each cell, the regulatory system is represented two Chemical Langeving Equations (CLE).  One for mRNA expression and the other one for protein expression according to Yan et al 2017.*)
 
 
+SetDirectory[]
+
+
 (* ::Section:: *)
 (*Parameters*)
 
@@ -14,8 +17,8 @@
 
 (* ::Input::Initialization:: *)
 radius=5; (* Coloby cell radius *)
-iteraciones=600; (* Number of algorithm iterations. An error could be get if there is less than 500 iterations *)
-replicas=1;  (* Number of times the algorithm is run *)
+iteraciones=1000; (* Number of algorithm iterations. An error could be get if there is less than 500 iterations *)
+replicas=2;  (* Number of times the algorithm is run *)
 
 name=0.009;   (* This is the last value of the range for the parameter being evluated *)
 kgs=Range[0.01,1,0.02];
@@ -36,14 +39,16 @@ parametro2="_\[Gamma]p";(* Poner aqui el segundo parametro. Con este se nombra e
 
 
 (* ::Input::Initialization:: *)
-LaunchKernels[10]
+LaunchKernels[8]
 dtGifs=10; 
 ventanas=4;
 
 
 Clear[kg,\[Gamma]g,bm,km,\[Gamma]m,kp,\[Gamma]p,\[Tau],\[Epsilon],g,nc];
-kg=0.05;(* Gene activation rate (t^-1)*)
-\[Gamma]g=1.98;(* Gene desactivation rate (t^-1) *)
+(*************************TO VARIATE THE REGIONS OF EXPRESSION*)
+kg=0.01;(* Gene activation rate (t^-1)*)
+\[Gamma]g=2;(* Gene desactivation rate (t^-1) *)
+(*************************PARAMETERS DEFAULT*)
 km=0.696;(* Production rate of mRNA (molecules*t^-1) *)
 \[Gamma]m=0.02082;(* Degradation rate (molecules*t^-1) *)
 kp=1.386;(* Production rate of proteins (molecules*t^-1) *)
@@ -290,27 +295,19 @@ AppendTo[meanMoleculesReplicas,meanMolecules];
 AppendTo[ffbyCirculoReplicas,ffCirculoAcuTime];
 AppendTo[meanffbyCirculoQReplicas,meanffCirculoAcuTimeQ];
 AppendTo[sdffbyCirculoQReplicas,sdffCirculoAcuTimeQ];
-resultadosR=resultados;],replicas];
+resultadosR=resultados;],
+
+replicas];
 
 {meanFFbyCellrep,sdFFbyCellrep}=Map[Mean,Transpose[ffPorCellReplicas]];
 meanMoleculesrep=Mean[Flatten[meanMoleculesReplicas]];
 meanEntoripasRep=Mean[Map[N@Entropy[Round[#]]&,meanffbyCirculoQReplicas]];
 meanRepFFByCircle=Map[Mean,Transpose[meanffbyCirculoQReplicas]];
 
-(*Export["bRCLEcolony"<>size<>"_df:"<>ToString[df]<>"_todos",{meanFFbyCellrep,sdFFbyCellrep,meanMoleculesrep,meanEntoripasRep,meanRepFFByCircle},"CSV"];*)
-Export["burstmRCLEColony_plot2"<>size<>"_df"<>ToString[df]<>".png",plot1F[ffbyCirculoReplicas[[1]],para1v,para2v,resultadosR],"PNG"];
-
-Export["burstmRCLEColony_plot3"<>size<>"_df"<>ToString[df]<>".png",plot2F[meanSd[meanffbyCirculoQReplicas][[1]],para1v,para2v],"PNG"];(*Export["burstmRCLEColony_plot4"<>size<>"_df"<>ToString[df],plot3F[meanSd[sdffbyCirculoQReplicas][[1]],\[Gamma]m,\[Gamma]p],"PNG"];*)
-
-Export["burstmRCLEColony_plot5.png"<>size<>"_df"<>ToString[df]<>".png",Histogram[Round@meanffbyCirculoQReplicas[[1]],"Probability",PlotLabel->para1<>ToString[para1v]<>para2<>ToString[para2v]<>" \n Entropy: "<>ToString[meanEntoripasRep],Frame->True,FrameLabel->{"FF Mean by disk","Probability"}],"PNG"];
-(***************************************************)
-
-Export["burstmRCLEColony_plot6"<>size<>"_df"<>ToString[df]<>".png",meanTempBox[resultadosR],"PNG"];
-Export["burstmRCLEColony_plot7"<>size<>"_df"<>ToString[df]<>".png",meanTemp[resultadosR],"PNG"];
-(*************************************************)
 
 
-,{df,dfs}];
+
+,{df,{0.01,0.1}}];
 
 
 
@@ -322,3 +319,22 @@ Export["burstmRCLEColony_plot7"<>size<>"_df"<>ToString[df]<>".png",meanTemp[resu
 
 (* ::Text:: *)
 (*Yan C - CS, Chepyala SR, Yen C - M, Hsu C - P . Efficient and flexible implementation of Langevin simulation for gene burst production . Sci Rep . 2017; 7 : 16851. doi : 10.1038/s41598 - 017 - 16835 - y*)
+
+
+(*Export["bRCLEcolony"<>size<>"_df:"<>ToString[df]<>"_todos",{meanFFbyCellrep,sdFFbyCellrep,meanMoleculesrep,meanEntoripasRep,meanRepFFByCircle},"CSV"];*)
+Export["burstmRCLEColony_plot2"<>size<>"_df"<>ToString[df]<>".png",plot1F[ffbyCirculoReplicas[[1]],para1v,para2v,resultadosR],"PNG"];
+
+Export["burstmRCLEColony_plot3"<>size<>"_df"<>ToString[df]<>".png",plot2F[meanSd[meanffbyCirculoQReplicas][[1]],para1v,para2v],"PNG"];
+
+(*Export["burstmRCLEColony_plot4"<>size<>"_df"<>ToString[df],plot3F[meanSd[sdffbyCirculoQReplicas][[1]],\[Gamma]m,\[Gamma]p],"PNG"];*)
+
+Export["burstmRCLEColony_plot5.png"<>size<>"_df"<>ToString[df]<>".png",Histogram[Round@meanffbyCirculoQReplicas[[1]],
+"Probability",PlotLabel->para1<>ToString[para1v]<>para2<>ToString[para2v]<>" \n Entropy: "<>ToString[meanEntoripasRep],Frame->True,FrameLabel->{"FF Mean by disk","Probability"}],"PNG"];
+(***************************************************)
+
+(*Export["burstmRCLEColony_plot6"<>size<>"_df"<>ToString[df]<>".png",meanTempBox[resultadosR],"PNG"];*)
+(*Export["burstmRCLEColony_plot7"<>size<>"_df"<>ToString[df]<>".png",meanTemp[resultadosR],"PNG"];*)
+(*************************************************)
+
+
+

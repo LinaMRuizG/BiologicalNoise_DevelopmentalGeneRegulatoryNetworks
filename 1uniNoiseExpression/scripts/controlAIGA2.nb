@@ -1,0 +1,126 @@
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[         0,          0]
+NotebookDataLength[      5015,        125]
+NotebookOptionsPosition[      3210,         83]
+NotebookOutlinePosition[      3602,         99]
+CellTagsIndexPosition[      3559,         96]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["\<\
+In this notebook is simulated the Activator-Inhibitor system regulation with \
+GA and the three-stage model (burst expression). The notebook has two parts:
+1. To evaluate the \[OpenCurlyDoubleQuote]sensitivity\[CloseCurlyDoubleQuote] \
+to the whole set the parameters. With an arbitrary start point to calculate \
+the estimates (FF, CV2,Mean) (30% of the total number of iterations), and \
+different number of iterations to get a final t of 1500. 
+2. To evaluate 4 specific regions or set of parameters\
+\>", "Text",
+ CellChangeTimes->{{3.836346665981419*^9, 3.836346706059374*^9}, {
+  3.836346866356167*^9, 3.8363469053618717`*^9}, {3.836643346599494*^9, 
+  3.8366433652756023`*^9}, {3.836737953711629*^9, 3.83673795851058*^9}, {
+  3.83724686851602*^9, 3.8372469652239227`*^9}, {3.8372470398739223`*^9, 
+  3.837247066131021*^9}, {3.837251505113503*^9, 3.837251628352626*^9}, {
+  3.837278156532999*^9, 3.8372781704767714`*^9}, {3.837300735369706*^9, 
+  3.837300740928582*^9}, {3.837326857259844*^9, 3.837326867282463*^9}, {
+  3.8373354072880793`*^9, 3.837335433287754*^9}, {3.848858665344905*^9, 
+  3.848858694589614*^9}, {3.8488625085914707`*^9, 3.8488625174346323`*^9}, {
+  3.8488667546331863`*^9, 3.848866765811693*^9}},
+ Background->RGBColor[
+  1, 0.85, 0.85],ExpressionUUID->"cb867907-5df5-484f-b592-1b1689028e6f"],
+
+Cell[CellGroupData[{
+
+Cell["Parameters for the two sessions", "Section",
+ CellChangeTimes->{{3.837251672833559*^9, 3.8372516809846973`*^9}, 
+   3.837251903224482*^9, {3.848866697987734*^9, 
+   3.848866698708439*^9}},ExpressionUUID->"31ecdfac-12fd-48f1-9bd1-\
+2691b30737db"],
+
+Cell[, "Text",ExpressionUUID->"076e7c13-3664-4b9f-a79c-8ced59cb2305"],
+
+Cell[, "Input",
+ InitializationCell->
+  True,ExpressionUUID->"ab7260ba-f439-435e-b5a8-2cf6cb69059c"],
+
+Cell[, "Text",ExpressionUUID->"d65a7540-068d-4934-83ec-5a82bfb87616"],
+
+Cell[, "Input",
+ InitializationCell->
+  True,ExpressionUUID->"ee4060ef-ffea-4e45-98b8-39a7c21b2986"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Functions for the two sessions", "Section",
+ CellChangeTimes->{{3.837251672833559*^9, 3.8372516809846973`*^9}, {
+  3.837251903224482*^9, 3.837251914795897*^9}, {3.8373636571872683`*^9, 
+  3.8373636591065598`*^9}},ExpressionUUID->"2fb67d6f-8f54-4afd-9e0e-\
+b9329ea0b963"],
+
+Cell[, "Text",ExpressionUUID->"ff82171a-2e44-446c-862a-bd1870be096f"],
+
+Cell[, "Input",
+ InitializationCell->
+  True,ExpressionUUID->"700b7e83-4e98-415b-af2e-f58099f0be3a"],
+
+Cell[, "Text",ExpressionUUID->"cedad160-4c6b-4954-b53a-bf382c7db61e"],
+
+Cell[, "Input",
+ InitializationCell->
+  True,ExpressionUUID->"e202af02-4208-4459-954d-5a9168b41c76"],
+
+Cell[, "Input",
+ InitializationCell->
+  True,ExpressionUUID->"132b18a0-b5b3-4c7f-8028-bb1c76176c02"],
+
+Cell[, "Input",ExpressionUUID->"844fb6d6-9d8a-4016-8736-ba65884f575e"]
+}, Closed]]
+},
+WindowSize->{1152., 610.8},
+WindowMargins->{{0, Automatic}, {0, Automatic}},
+FrontEndVersion->"12.3 for Linux x86 (64-bit) (June 24, 2021)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"6ee06e06-b8fd-45b6-b357-be8a2e4be301"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[400, 13, 1329, 20, 120, "Text",ExpressionUUID->"cb867907-5df5-484f-b592-1b1689028e6f"],
+Cell[CellGroupData[{
+Cell[1754, 37, 251, 4, 67, "Section",ExpressionUUID->"31ecdfac-12fd-48f1-9bd1-2691b30737db"],
+Cell[2008, 43, 69, 0, 18, "Text",ExpressionUUID->"076e7c13-3664-4b9f-a79c-8ced59cb2305"],
+Cell[2080, 45, 100, 2, 97, "Input",ExpressionUUID->"ab7260ba-f439-435e-b5a8-2cf6cb69059c",
+ InitializationCell->True],
+Cell[2183, 49, 69, 0, 18, "Text",ExpressionUUID->"d65a7540-068d-4934-83ec-5a82bfb87616"],
+Cell[2255, 51, 100, 2, 215, "Input",ExpressionUUID->"ee4060ef-ffea-4e45-98b8-39a7c21b2986",
+ InitializationCell->True]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[2392, 58, 276, 4, 53, "Section",ExpressionUUID->"2fb67d6f-8f54-4afd-9e0e-b9329ea0b963"],
+Cell[2671, 64, 69, 0, 27, "Text",ExpressionUUID->"ff82171a-2e44-446c-862a-bd1870be096f"],
+Cell[2743, 66, 100, 2, 187, "Input",ExpressionUUID->"700b7e83-4e98-415b-af2e-f58099f0be3a",
+ InitializationCell->True],
+Cell[2846, 70, 69, 0, 27, "Text",ExpressionUUID->"cedad160-4c6b-4954-b53a-bf382c7db61e"],
+Cell[2918, 72, 100, 2, 38, "Input",ExpressionUUID->"e202af02-4208-4459-954d-5a9168b41c76",
+ InitializationCell->True],
+Cell[3021, 76, 100, 2, 121, "Input",ExpressionUUID->"132b18a0-b5b3-4c7f-8028-bb1c76176c02",
+ InitializationCell->True],
+Cell[3124, 80, 70, 0, 16, "Input",ExpressionUUID->"844fb6d6-9d8a-4016-8736-ba65884f575e"]
+}, Closed]]
+}
+]
+*)
+

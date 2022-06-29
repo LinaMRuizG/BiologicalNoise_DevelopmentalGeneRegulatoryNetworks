@@ -14,7 +14,7 @@
 
 (* ::Input::Initialization:: *)
 iteraciones=100;(* Number of algorithm iterations *)
-replicas=2;  (* Number of times the algorithm is run *)
+replicas=1;  (* Number of times the algorithm is run *)
 name=0.009;  (* This is the last value of the range for the parameter being evluated *)
 kgs=Range[0.01,1,0.02];
 \[Gamma]gs=Range[0.02,name,0.04]; (* subRanges: 0.02-0.18, 0.22-0.38, 0.42-0.58, 0.62-0.78, 0.82-0.98, 1.02-1.18, 1.22-1.38, 1.42-1.58, 1.62-1.78, 1.82-1.98 *)
@@ -28,7 +28,7 @@ parametro2="_\[Gamma]p";(* With the name of the second parameter is named the ou
 (* ::Input::Initialization:: *)
 dtGifs=10; (* Time step for Gif plots *)
 ventanas=4; (* For the algorithm estimating the Steady-state *)
-radius=25; (* Coloby cell radius *)
+radius=5; (* Coloby cell radius *)
 Clear[kg,\[Gamma]g,bm,km,\[Gamma]m,kp,\[Gamma]p,\[Tau],\[Epsilon],g,nc];
 kg=0.01158;(* Gene activation rate (t^-1)*)
 \[Gamma]g= 2.082;(* Gene desactivation rate (t^-1) *)
@@ -52,7 +52,7 @@ species:={mRNA,protein}; (* The values of these are changing in each step \[Tau]
 
 
 (* ::Section::Initialization:: *)
-(*(*Functions*)*)
+(*Functions*)
 
 
 (* ::Input::Initialization:: *)
@@ -193,7 +193,6 @@ uno=Table[Select[Flatten[i],Quantile[Flatten[i],{0.1}][[1]]<#<Quantile[Flatten[i
 
 
 (* ::Input::Initialization:: *)
-radius=25;
 capaCeros=3;
 totalFila=radius*2+1+capaCeros*2;
 matrix=Join[Table[Table[0,radius*2+1+capaCeros*2],3],Table[{0,0,0,Sequence@@i,0,0,0},{i,DiskMatrix[radius]}],Table[Table[0,radius*2+1+capaCeros*2],3]];
@@ -212,7 +211,7 @@ terminosEntradaA=Table[prVectorEntradaA . matrizCompleta[[i]],{i,Length[prVector
 
 
 (* ::Section::Initialization:: *)
-(*(*Solution-iteration*)*)
+(*Solution-iteration*)
 
 
 (* ::Input::Initialization:: *)
